@@ -44,4 +44,10 @@ Revision history for Perl extension WWW::Babelfish.
 	- Added patch from Olivier Scherler
 	<olivier.scherler@urbanet.ch> for subtle whitespace handling
 	bug. 
-                                        
+
+0.10	Mon Oct 15 21:43:07 EDT 2001                           
+	- Patch from Brett T Warden <bwarden@wgz.com> to do non-Roman 
+	alphabet languages. Also fixed test.pl to get language list
+	and added PREREQ_PM hash to Makefile.PL
+
+	

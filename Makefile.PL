@@ -4,4 +4,11 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'	=> 'WWW::Babelfish',
     'VERSION_FROM' => 'Babelfish.pm', # finds $VERSION
+    'PREREQ_PM' => {
+
+		    'HTTP::Request' => 0,
+		    'LWP::UserAgent' => 0,
+		    'HTML::TokeParser' => 0,
+		    'IO::String' => 0,
+		   }
 );

@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 # Preloaded methods go here.
 
@@ -148,7 +148,7 @@ sub translate {
     
   CHUNK:
     foreach $chunk ( $self->_chunk_text($MAXCHUNK, $para) ) {
-      $req = POST ($BABELFISH_URL, [ 'doit' => 'done', 'urltext' => $chunk, 'lp' => $langopt, 'Submit' => 'Translate' ]);
+      $req = POST ($BABELFISH_URL, [ 'doit' => 'done', 'urltext' => $chunk, 'lp' => $langopt, 'Submit' => 'Translate', 'enc' => 'utf8' ]);
       $ua = new LWP::UserAgent;
       $ua->proxy('http','http://' . $self->{proxy}) if defined $self->{proxy};
       

@@ -27,7 +27,7 @@ die( "Babelfish server unavailable\n" ) unless defined($obj);
 print "Text to translate: ";
 $text = <stdin>;
 
-print "Source language (English, French, German, Italian, Spanish): ";
+print "Source language (" . join(", ", $obj->languages) . "): ";
 chomp($source = <stdin>);
 print "Target language: ";
 chomp($target = <stdin>);
