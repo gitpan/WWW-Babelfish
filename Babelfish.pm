@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 # Preloaded methods go here.
 
@@ -260,7 +260,14 @@ sub _extract_text {
 	while ($token = $p->get_token) {
 	    next if shift(@{$token}) ne "T";
 	    $text = shift(@{$token});
-	    $text =~ s/[\r\n]//g;
+
+	    #$text =~ s/[\r\n]//g;
+	    # This patch for whitespace handling from Olivier Scherler
+            $text =~ s/[\r\n]/ /g;
+            $text =~ s/^\s*//;
+            $text =~ s/\s+/ /g;
+            $text =~ s/\s+$//;
+
 	    last if defined($text) and $text ne "";
 	}
     }

@@ -40,4 +40,8 @@ Revision history for Perl extension WWW::Babelfish.
 	<wolfgang.schlueschen@philips.com> and Daniel van Balen
 	<vdaniel@trompo.com>.
                                         
+0.09	Sun Aug 13 20:38:11 2000
+	- Added patch from Olivier Scherler
+	<olivier.scherler@urbanet.ch> for subtle whitespace handling
+	bug. 
                                         

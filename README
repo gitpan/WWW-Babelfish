@@ -1,4 +1,4 @@
-WWW::Babelfish, version .08
+WWW::Babelfish, version .09
 
 STATUS
 ======
@@ -47,6 +47,10 @@ Peter Tirsek <peter@tirsek.com>		Patch to fix bug in whitespace
 					handling at beginning of
 					paragraph AND new Babelfish
 					URL and format.
+
+Olivier Scherler <olivier.scherler@urbanet.ch>
+					Patch for subtle whitespace
+					handling bug. 
 
 Many many thanks also to Wolfgang Schlueschen
 <wolfgang.schlueschen@philips.com> and Daniel van Balen
