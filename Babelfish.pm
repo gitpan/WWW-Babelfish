@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 # Preloaded methods go here.
 
@@ -22,7 +22,7 @@ use HTML::TokeParser;
 use IO::String;
 
 my $BABELFISH = 'babelfish.altavista.digital.com';
-my $BABELFISH_URL = 'http://babelfish.altavista.digital.com/cgi-bin/translate?';
+my $BABELFISH_URL = 'http://babelfish.altavista.com/raging/translate.dyn?';
 my $MAXCHUNK = 1000; # Maximum number of characters 
 # Bablefish will translate at one time 
 
@@ -128,7 +128,7 @@ sub translate {
   my $para;			# paragraph
   my $num_paras = 0;		# number of paragraphs
   my $transpara;		# translated paragraph
-  my $para_start_ws;		# initial whitespace in paragraph
+  my $para_start_ws = "";	# initial whitespace in paragraph
   my $chunk;			# paragraph piece to feed to babelfish
   my $req;			# LWP request object
   my $ua;			# LWP user agent
@@ -141,8 +141,9 @@ sub translate {
     
     # Extract any leading whitespace from the start of the paragraph
     # Babelfish will eat it anyway.
-    $para =~ s/(^\s+)(\S)/$2/;
-    $para_start_ws = $1 || "";
+    if ($para =~ s/(^\s+)(\S)/$2/) {
+	$para_start_ws = $1 || "";
+    }
     chomp $para;		# Remove the para delimiter
     
   CHUNK:
@@ -246,19 +247,21 @@ sub _chunk_text {
 }
 
 # Extract the text from the html we get back from babelfish and return
-# it (keying on the fact that it's the first thing aligned left)
+# it (keying on the fact that it's the first thing after a <br> tag,
+# possibly removing a textarea tag after it).
 sub _extract_text {
     my($self, $html) = @_;
 
     my $p = HTML::TokeParser->new(\$html);
-    my $tag;
-    my $text;
-    while( $tag = $p->get_tag('td') ){
-	$_ = pop(@{$tag});
-	if($_ eq '<td align="left">'){
-	    $tag = $p->get_tag('font');
-	    $text = $p->get_text;
-	    last;
+    my ($tag,$token);
+    my $text="";
+
+    if ($tag = $p->get_tag('br')) {
+	while ($token = $p->get_token) {
+	    next if shift(@{$token}) ne "T";
+	    $text = shift(@{$token});
+	    $text =~ s/[\r\n]//g;
+	    last if defined($text) and $text ne "";
 	}
     }
     return $text;

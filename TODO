@@ -1,7 +1,1 @@
-
-Don't try to translate paragraphs consisting only of whitespace or
-numbers. 
-
-
-Better test scripts would be nice; at least we should ask for a proxy
-during "make test".
+Write a translating web proxy using the module.

@@ -31,3 +31,13 @@ Revision history for Perl extension WWW::Babelfish.
 	- Incorporated patch from Brian Raven <brianr@liffe.com> to
 	avoid "use of undefined" warning when source text doesn't
 	start with white space.
+
+0.08	Mon Jun 12 22:09:32 2000
+	- Added patch from Peter Tirsek <peter@tirsek.com> to fix bug
+	in whitespace handling at beginning of paragraph and new
+	Babelfish URL and format. Patches for URL and format were also
+	submitted by Wolfgang Schlueschen
+	<wolfgang.schlueschen@philips.com> and Daniel van Balen
+	<vdaniel@trompo.com>.
+                                        
+                                        
