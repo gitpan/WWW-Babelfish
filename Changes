@@ -22,3 +22,7 @@ Revision history for Perl extension WWW::Babelfish.
 0.05	Thu Feb 10 14:48:10 2000
 	- Added improved test code and changed "deliminators" to
 	"delimiters" so I look like less of an idiot.
+
+0.06	Fri Feb 11 12:06:02 2000
+	- Fixed test to chomp() proxy so it doesn't fail in non-proxied 
+	environments. Duh.

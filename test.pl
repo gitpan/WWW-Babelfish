@@ -19,7 +19,7 @@ print "ok 1\n";
 # of the test code):
 
 print "Your WWW proxy (hostname:port): [none] ";
-$proxy = <stdin>;
+chomp($proxy = <stdin>);
 
 $obj = $proxy ? new WWW::Babelfish('proxy' => $proxy) : new WWW::Babelfish;
 die( "Babelfish server unavailable\n" ) unless defined($obj);
