@@ -56,3 +56,16 @@ Revision history for Perl extension WWW::Babelfish.
 	150 words"; I'm not sure if this is a change from the ~1000
 	characters it did before. I *think* the new format may not
 	need the whitespace cleanup code anymore.
+
+0.12	Sat Oct 18 22:06:03 MDT 2003
+	- Changed $BABELFISH_URL so default input language is English,
+	on a tip from Ivica Letunic <Ivica.Letunic@EMBL-Heidelberg.de>
+	Patch from Martin K. Sluka <martin@sluka.de> to add
+	languagepairs method. Removed line that closes output
+	filehandle. Added preliminary support for Google translation
+	engine (ugly and hacky, but very easy since the interface is
+	almost identical to Babelfish; so are the translations, hmmm).
+	Changed Makefile.PL so it prompts to run translation test;
+	this way it can be automatically installed via CPAN. All 
+	strings are now encoded/decoded utf8 using the Encode module; 
+	this means perl 5.8 is required.

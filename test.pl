@@ -18,26 +18,29 @@ print "ok 1\n";
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 
-print "Your WWW proxy (hostname:port): [none] ";
-chomp($proxy = <stdin>);
+if ( -f "TTEST") {
 
-$obj = $proxy ? new WWW::Babelfish('proxy' => $proxy) : new WWW::Babelfish;
-die( "Babelfish server unavailable\n" ) unless defined($obj);
+  print "Your WWW proxy (hostname:port): [none] ";
+  chomp($proxy = <stdin>);
 
-print "Text to translate: ";
-$text = <stdin>;
+  $obj = $proxy ? new WWW::Babelfish('proxy' => $proxy) : new WWW::Babelfish;
+  die( "Babelfish server unavailable\n" ) unless defined($obj);
 
-print "Source language (" . join(", ", $obj->languages) . "): ";
-chomp($source = <stdin>);
-print "Target language: ";
-chomp($target = <stdin>);
+  print "Text to translate: ";
+  $text = <stdin>;
 
-print "Translating...\n";
+  print "Source language (" . join(", ", $obj->languages) . "): ";
+  chomp($source = <stdin>);
+  print "Target language: ";
+  chomp($target = <stdin>);
 
-$trans = $obj->translate( 'source' => $source,
-			  'destination' => $target,
-			  'text' => $text );
+  print "Translating...\n";
 
-die("Could not translate: " . $obj->error) unless defined($trans);
+  $trans = $obj->translate( 'source' => $source,
+			    'destination' => $target,
+			    'text' => $text );
 
-print "Translation: ", $trans, "\n";
+  die("Could not translate: " . $obj->error) unless defined($trans);
+
+  print "Translation: ", $trans, "\n";
+}
