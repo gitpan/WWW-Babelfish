@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 # Preloaded methods go here.
 
@@ -142,7 +142,7 @@ sub translate {
     # Extract any leading whitespace from the start of the paragraph
     # Babelfish will eat it anyway.
     $para =~ s/(^\s+)(\S)/$2/;
-    $para_start_ws = $1;
+    $para_start_ws = $1 || "";
     chomp $para;		# Remove the para delimiter
     
   CHUNK:

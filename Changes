@@ -26,3 +26,8 @@ Revision history for Perl extension WWW::Babelfish.
 0.06	Fri Feb 11 12:06:02 2000
 	- Fixed test to chomp() proxy so it doesn't fail in non-proxied 
 	environments. Duh.
+
+0.07	Fri Feb 25 16:31:38 2000
+	- Incorporated patch from Brian Raven <brianr@liffe.com> to
+	avoid "use of undefined" warning when source text doesn't
+	start with white space.

@@ -1,4 +1,4 @@
-WWW::Babelfish, version .06
+WWW::Babelfish, version .07
 
 STATUS
 ======
@@ -37,6 +37,13 @@ After unpacking the tar file, do the usual:
         make install
 
 There is embedded POD documentation in Babelfish.pm
+
+ACKNOWLEDGEMENTS
+================
+Brian Raven <brianr@liffe.com>		Patch to fix warning when
+					source text doesn't start with
+					whitespace. 
+
 
 COPYRIGHT
 =========
