@@ -18,3 +18,7 @@ Revision history for Perl extension WWW::Babelfish.
 	using IO::String to maintain backwards compatibility; now we
 	can translate whole novels! Added support for user-specified
 	paragraph delimiters. Some code clean-up.
+
+0.05	Thu Feb 10 14:48:10 2000
+	- Added improved test code and changed "deliminators" to
+	"delimiters" so I look like less of an idiot.

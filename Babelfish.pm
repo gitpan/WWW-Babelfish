@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 # Preloaded methods go here.
 
@@ -85,7 +85,7 @@ sub translate {
   my ($self, %params) = @_;
   
   # Paragraph separator is "\n\n" by default
-  $/ = $params{deliminator} || "\n\n";
+  $/ = $params{delimiter} || "\n\n";
   
   undef $self->{error};
   unless( exists($self->{Langs}->{$params{source}}) ){
@@ -143,7 +143,7 @@ sub translate {
     # Babelfish will eat it anyway.
     $para =~ s/(^\s+)(\S)/$2/;
     $para_start_ws = $1;
-    chomp $para;		# Remove the para deliminator
+    chomp $para;		# Remove the para delimiter
     
   CHUNK:
     foreach $chunk ( $self->_chunk_text($MAXCHUNK, $para) ) {
@@ -283,7 +283,7 @@ WWW::Babelfish - Perl extension for translation via babelfish
   $french_text = $obj->translate( 'source' => 'English',
                                   'destination' => 'French',
                                   'text' => 'My hovercraft is full of eels',
-				  'deliminator' => "\n\t",
+				  'delimiter' => "\n\t",
 				  'ofh' => \*STDOUT );
   die("Could not translate: " . $obj->error) unless defined($french_text);
 
@@ -317,7 +317,7 @@ Parameters:
  text:        If this is a reference, translate interprets it as an 
               open filehandle to read from. Otherwise, it is treated 
               as a string to translate.
- deliminator: Paragraph deliminator for the text; the default is "\n\n".
+ delimiter:   Paragraph delimiter for the text; the default is "\n\n".
               Note that this is a string, not a regexp.
  ofh:         Output filehandle; if provided, the translation will be 
               written to this filehandle.

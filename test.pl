@@ -18,16 +18,26 @@ print "ok 1\n";
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 
-$obj = new WWW::Babelfish;
+print "Your WWW proxy (hostname:port): [none] ";
+$proxy = <stdin>;
+
+$obj = $proxy ? new WWW::Babelfish('proxy' => $proxy) : new WWW::Babelfish;
 die( "Babelfish server unavailable\n" ) unless defined($obj);
 
-print "Translating: \'My hovercraft is full of eels\'\n";
+print "Text to translate: ";
+$text = <stdin>;
 
-$french_text = $obj->translate( 'source' => 'English',
-				'destination' => 'French',
-				'text' => 'My hovercraft is full of eels');
+print "Source language (English, French, German, Italian, Spanish): ";
+chomp($source = <stdin>);
+print "Target language: ";
+chomp($target = <stdin>);
 
-die("Could not translate: " . $obj->error) unless defined($french_text);
+print "Translating...\n";
 
-print "Translation: ", $french_text, "\n";
-                                                                                    
+$trans = $obj->translate( 'source' => $source,
+			  'destination' => $target,
+			  'text' => $text );
+
+die("Could not translate: " . $obj->error) unless defined($trans);
+
+print "Translation: ", $trans, "\n";
