@@ -3,3 +3,7 @@ Revision history for Perl extension WWW::Babelfish.
 0.01  Tue Apr 20 20:43:40 1999
 	- original version; created by h2xs 1.18
 
+0.02	Thu May  6 20:42:35 1999  
+	- added code to break up source text by paragraph
+	and reassemble it. This looks nicer in the output
+	and Babelfish seems to like it better.

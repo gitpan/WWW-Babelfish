@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 # Preloaded methods go here.
 
@@ -23,7 +23,9 @@ use HTML::TokeParser;
 my $BABELFISH = 'babelfish.altavista.digital.com';
 my $BABELFISH_URL = 'http://babelfish.altavista.digital.com/cgi-bin/translate?';
 my $MAXCHUNK = 1000; # experimentally determined maximum number of characters 
-                     # Bablefish will translate at one time (989 actually?)
+                     # Bablefish will translate at one time 
+
+my $MAXRETRIES = 5;  # Maximum number of retries for a chunk of text
 
 
 sub new {
@@ -35,11 +37,10 @@ sub new {
   return $self;
 }
 
-
 sub initialize {
   my($self, %params) = shift;
 
-  # Caller can set user agent; we default to "script:Text::Babelfish/0.01"
+  # Caller can set user agent; we default to "script:WWW::Babelfish/0.01"
   $self->{agent} = $params{agent} || $0 . ":" . __PACKAGE__ . "/" . $VERSION;
 
   # Get the page 
@@ -100,44 +101,53 @@ sub translate {
   my $langopt = $self->{Lang2opt}->{$params{source} . " to " . $params{destination}};
 
   my $Text;
-  my ($chunk, $req, $ua, $answer, $p, $tag, $text);
+  my ($para, $delim, $chunk, $req, $res, $ua, $answer, $p, $tag, $text, $i);
 
-  foreach $chunk ( $self->_chunk_text($MAXCHUNK, $params{text}) ) {
-    $req = POST ($BABELFISH_URL, [ 'doit' => 'done', 'urltext' => $chunk, 'lp' => $langopt, 'Submit' => 'Translate' ]);
-    $ua = new LWP::UserAgent;
-    $answer = $ua->request($req)->as_string;
+  my @paras =  split(/(\n{2,}|\n\s+)/, $params{text});
+  foreach $para (@paras) {
+    my $delim = shift(@paras);
 
-    # Now parse out the translated text (keying on the fact 
-    # that it's the first thing aligned left)
-    $p = HTML::TokeParser->new(\$answer);
-    while( $tag = $p->get_tag('td') ){
-      $_ = pop(@{$tag});
-      if($_ eq '<td align="left">'){
-	$tag = $p->get_tag('font');
-	$text = $p->get_text;
-	last;
+  CHUNK:
+    foreach $chunk ( $self->_chunk_text($MAXCHUNK, $para) ) {
+      $req = POST ($BABELFISH_URL, [ 'doit' => 'done', 'urltext' => $chunk, 'lp' => $langopt, 'Submit' => 'Translate' ]);
+      $ua = new LWP::UserAgent;
+
+      for($i = 0; $i <= $MAXRETRIES; $i++){ 
+	$res = $ua->request($req);
+	if($res->is_success){
+	  # Now parse out the translated text (keying on the fact 
+	  # that it's the first thing aligned left)
+	  $answer = $res->as_string;
+
+	  $p = HTML::TokeParser->new(\$answer);
+	  while( $tag = $p->get_tag('td') ){
+	    $_ = pop(@{$tag});
+	    if($_ eq '<td align="left">'){
+	      $tag = $p->get_tag('font');
+	      $text = $p->get_text;
+	      last;
+	    }
+	  }
+	  $Text .= $text;
+	  next CHUNK;
+	}
       }
+      $self->{error} = "Request timed out more than $MAXRETRIES times";
+      return undef; # We return all or nothing
     }
-
-    $Text .= $text;
+    $Text .= $delim;
   }
-
   return $Text || undef;
 }
 
-  sub error {
+sub error {
   my $self = shift;
   return $self->{error};
 }
 
-
-
 # Given a maximum chunk size and some text, return 
 # an array of pieces of the text chopped up in a 
 # logical way and less than or equal to the chunk size
-#
-# Why am I bothering to go to this much trouble? 
-# It's really unlikely that babelfish does
 sub _chunk_text {
   my($self, $max, $text) = @_;
   
@@ -200,7 +210,6 @@ sub _chunk_text {
 
 1;
 __END__
-# Below is the stub of documentation for your module. You better edit it!
 
 =head1 NAME
 
@@ -229,7 +238,7 @@ Perl interface to the WWW babelfish translation server.
 
 =item new
 
-Creates a new WWW::Babelfish object. Can take a named argument for
+Creates a new WWW::Babelfish object. It can take a named argument for
 user agent.
 
 =item languages
@@ -255,10 +264,11 @@ logical chunks of less than 1000 characters, feeds them to Babelfish
 and then reassembles them. Any formatting is likely to get lost in the
 process.
 
-=head1 BUGS
+=head1 CAVEATS
 
-Timeouts aren't handled gracefully (a timeout string ends up in the
-result text).
+The translate function is an all-or-nothing proposition; if we time out
+too many times or can't connect to Babelfish, no partial translation is 
+returned.
 
 =head1 AUTHOR
 
