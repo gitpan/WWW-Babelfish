@@ -12,3 +12,9 @@ Revision history for Perl extension WWW::Babelfish.
 	- bug fixes for accidental appending of source text, 
 	multiple linefeeds, and timeouts. Also added demo code
 	to test.pl
+
+0.04	Wed Jan  5 16:33:11 2000
+	- Added proxy support and support for input/output filehandles
+	using IO::String to maintain backwards compatibility; now we
+	can translate whole novels! Added support for user-specified
+	paragraph delimiters. Some code clean-up.

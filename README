@@ -1,4 +1,4 @@
-WWW::Babelfish, version .02
+WWW::Babelfish, version .04
 
 STATUS
 ======
@@ -9,11 +9,10 @@ Comments, bug reports, etc. are appreciated.
 DESCRIPTION
 ===========
 This module is a simple perl front-end to the Babelfish translation
-server <http://babelfish.altavista.digital.com/cgi-bin/translate?>. 
+server <http://babelfish.altavista.digital.com/cgi-bin/translate?>.
 It's more fun than useful, but it might have a place in IRC/talk
-clients. It also makes a (feeble) attempt at breaking longer pieces of
-text up into chunks that Babelfish can handle and then reassambling
-them. 
+clients. It makes an attempt at breaking longer pieces of text up into
+chunks that Babelfish can handle and then reassembling them.
 
 I think the Babelfish server itself is a wonderfully audacious hack
 and much more could be done along these lines, especially if there was 
@@ -28,6 +27,7 @@ This module needs the following modules, all available from CPAN:
 HTTP::Request
 LWP::UserAgent
 HTML::TokeParser
+IO::String
 
 After unpacking the tar file, do the usual:
 
@@ -40,7 +40,7 @@ There is embedded POD documentation in Babelfish.pm
 
 COPYRIGHT
 =========
-Copyright (c) 1999 Daniel J. Urist. All rights reserved.  This
+Copyright (c) 1999,2000 Daniel J. Urist. All rights reserved.  This
 package is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
