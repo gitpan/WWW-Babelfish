@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 # Preloaded methods go here.
 
@@ -21,8 +21,8 @@ use LWP::UserAgent;
 use HTML::TokeParser;
 use IO::String;
 
-my $BABELFISH = 'babelfish.altavista.digital.com';
-my $BABELFISH_URL = 'http://babelfish.altavista.com/raging/translate.dyn?';
+my $BABELFISH = 'babelfish.altavista.com';
+my $BABELFISH_URL = 'http://babelfish.altavista.com/babelfish/tr';
 my $MAXCHUNK = 1000; # Maximum number of characters 
 # Bablefish will translate at one time 
 
@@ -156,6 +156,12 @@ sub translate {
       for($i = 0; $i <= $MAXRETRIES; $i++){ 
 	$res = $ua->request($req);
 	if( $res->is_success ){
+
+	  #DEBUG
+	  open(DEBUG, ">debug.html");
+	  print DEBUG $res->as_string;
+	  close DEBUG;
+
 	  $text = $self->_extract_text($res->as_string);
 	  next RETRY if $text =~ /^\*\*time-out\*\*/; # in-band signalling; yuck
 	  
@@ -250,28 +256,39 @@ sub _chunk_text {
 # it (keying on the fact that it's the first thing after a <br> tag,
 # possibly removing a textarea tag after it).
 sub _extract_text {
-    my($self, $html) = @_;
+  my($self, $html) = @_;
 
-    my $p = HTML::TokeParser->new(\$html);
-    my ($tag,$token);
-    my $text="";
+  my $p = HTML::TokeParser->new(\$html);
 
-    if ($tag = $p->get_tag('br')) {
-	while ($token = $p->get_token) {
-	    next if shift(@{$token}) ne "T";
-	    $text = shift(@{$token});
+  my $tag;
+  while ($tag = $p->get_tag('input')) {
+    return @{$tag}[1]->{value} if @{$tag}[1]->{name} eq 'q';
+  }
 
-	    #$text =~ s/[\r\n]//g;
-	    # This patch for whitespace handling from Olivier Scherler
-            $text =~ s/[\r\n]/ /g;
-            $text =~ s/^\s*//;
-            $text =~ s/\s+/ /g;
-            $text =~ s/\s+$//;
+# This code is now obsoleted by the new result page format, but I'm
+# leaving it here commented out in case we end up needing the
+# whitespace hack again.
+#
+#    my ($tag,$token);
+#    my $text="";
+#     if ($tag = $p->get_tag('br')) {
+# 	while ($token = $p->get_token) {
+# 	    next if shift(@{$token}) ne "T";
+# 	    $text = shift(@{$token});
 
-	    last if defined($text) and $text ne "";
-	}
-    }
-    return $text;
+# 	    #$text =~ s/[\r\n]//g;
+# 	    # This patch for whitespace handling from Olivier Scherler
+#             $text =~ s/[\r\n]/ /g;
+#             $text =~ s/^\s*//;
+#             $text =~ s/\s+/ /g;
+#             $text =~ s/\s+$//;
+
+# 	    last if defined($text) and $text ne "";
+# 	}
+#    }
+#    return $text;
+
+
 }
 
 

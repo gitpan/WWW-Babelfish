@@ -1,4 +1,4 @@
-WWW::Babelfish, version .10
+WWW::Babelfish, version .11
 
 STATUS
 ======
@@ -60,7 +60,7 @@ Babelfish URL and format.
 
 COPYRIGHT
 =========
-Copyright (c) 1999,2000 Daniel J. Urist. All rights reserved.  This
+Copyright (c) 1999-2002 Daniel J. Urist. All rights reserved.  This
 package is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 

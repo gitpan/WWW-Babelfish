@@ -50,4 +50,9 @@ Revision history for Perl extension WWW::Babelfish.
 	alphabet languages. Also fixed test.pl to get language list
 	and added PREREQ_PM hash to Makefile.PL
 
-	
+0.11	Mon Nov 18 23:41:42 EST 2002
+	- Fixed new Babelfish url and result page format, which is
+	much simpler; Babelfish now claims it will translate "up to
+	150 words"; I'm not sure if this is a change from the ~1000
+	characters it did before. I *think* the new format may not
+	need the whitespace cleanup code anymore.
