@@ -18,3 +18,16 @@ print "ok 1\n";
 # (correspondingly "not ok 13") depending on the success of chunk 13
 # of the test code):
 
+$obj = new WWW::Babelfish;
+die( "Babelfish server unavailable\n" ) unless defined($obj);
+
+print "Translating: \'My hovercraft is full of eels\'\n";
+
+$french_text = $obj->translate( 'source' => 'English',
+				'destination' => 'French',
+				'text' => 'My hovercraft is full of eels');
+
+die("Could not translate: " . $obj->error) unless defined($french_text);
+
+print "Translation: ", $french_text, "\n";
+                                                                                    

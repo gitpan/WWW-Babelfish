@@ -12,7 +12,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 # Preloaded methods go here.
 
@@ -104,14 +104,16 @@ sub translate {
   my ($para, $delim, $chunk, $req, $res, $ua, $answer, $p, $tag, $text, $i);
 
   my @paras =  split(/(\n{2,}|\n\s+)/, $params{text});
-  foreach $para (@paras) {
-    my $delim = shift(@paras);
+
+  while( $para = shift(@paras) ){
+    $delim = shift(@paras);
 
   CHUNK:
     foreach $chunk ( $self->_chunk_text($MAXCHUNK, $para) ) {
       $req = POST ($BABELFISH_URL, [ 'doit' => 'done', 'urltext' => $chunk, 'lp' => $langopt, 'Submit' => 'Translate' ]);
       $ua = new LWP::UserAgent;
 
+    RETRY:
       for($i = 0; $i <= $MAXRETRIES; $i++){ 
 	$res = $ua->request($req);
 	if($res->is_success){
@@ -128,6 +130,8 @@ sub translate {
 	      last;
 	    }
 	  }
+	  next RETRY if $text =~ /^\*\*time-out\*\*/; # in-band signalling; yuck
+	  chomp($text) unless $chunk =~ /\n$/;        # Babelfish likes to append newlines
 	  $Text .= $text;
 	  next CHUNK;
 	}

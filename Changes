@@ -7,3 +7,8 @@ Revision history for Perl extension WWW::Babelfish.
 	- added code to break up source text by paragraph
 	and reassemble it. This looks nicer in the output
 	and Babelfish seems to like it better.
+
+0.03	Tue May 18 20:04:45 1999
+	- bug fixes for accidental appending of source text, 
+	multiple linefeeds, and timeouts. Also added demo code
+	to test.pl
