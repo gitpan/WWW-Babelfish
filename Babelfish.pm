@@ -14,7 +14,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 # Preloaded methods go here.
 
@@ -133,7 +133,9 @@ sub initialize {
     my $a2b;
     if( $p->get_tag("select") ){
 	while( $_ = $p->get_tag("option") ){
-	    ($a2b = $p->get_trimmed_text) =~ /(\S+)\sto\s(\S+)/ or next;
+	    $a2b = $p->get_trimmed_text;
+	    next if $a2b =~ /Select from and to languages/; # This for babelfish
+	    $a2b  =~ /(\S+)\sto\s(\S+)/ or next;
 	    $self->{Langs}{$1}{$2} = $_->[1]{value};
             $self->{Langs}{$2} ||= {};
 	}
@@ -156,7 +158,10 @@ sub translate {
   my ($self, %params) = @_;
 
   # Paragraph separator is "\n\n" by default
-  $/ = $params{delimiter} || "\n\n";
+  local $/ = $params{delimiter} || "\n\n";
+  local $_;
+
+  $params{delimiter} = "\n\n" if ( ! defined( $params{delimiter} ) );
 
   undef $self->{error};
   unless( exists($self->{Langs}->{$params{source}}) ){
@@ -214,7 +219,7 @@ sub translate {
     if ($para =~ s/(^\s+)(\S)/$2/) {
 	$para_start_ws = $1 || "";
     }
-    chomp $para;		# Remove the para delimiter
+    $para =~ s/$params{delimiter}//; # Remove the para delimiter
 
   CHUNK:
     foreach $chunk ( $self->_chunk_text($MAXCHUNK, $para) ) {
@@ -229,7 +234,13 @@ sub translate {
 
 	  #$text = $self->_extract_text($res->as_string); #REMOVE
 	  $text = &{ $Services->{ $self->{service} }->{extract_text} }($res->as_string);
-	  next RETRY if $text =~ /^\*\*time-out\*\*/; # in-band signalling; yuck
+	  if ( ( ! defined( $text ) ) ||
+               ( $text =~ /^\*\*time-out\*\*/ )
+             ) # in-band signalling; yuck
+          {
+            next RETRY;
+
+          } ## end if
 
 	  $text =~ s/\n$//;	# Babelfish likes to append newlines
 	  $transpara .= $text;
@@ -356,7 +367,7 @@ __END__
 
 =head1 NAME
 
-WWW::Babelfish - Perl extension for translation via babelfish
+WWW::Babelfish - Perl extension for translation via Babelfish or Google
 
 =head1 SYNOPSIS
 
@@ -487,12 +498,13 @@ will work for non-Western languages since it tries to key on
 punctuation. What would make this work is if perl had properly
 localized regexps for sentence/clause boundaries.
 
-Support for Google is preliminary and hasn't been extensively tested.
-Google's translations are suspiciously similar to Babelfish's...
+Support for Google is preliminary and hasn't been extensively tested (by me).
+Google's translations used to be suspiciously similar to Babelfish's,
+but now some people tell me they're superior.
 
 =head1 AUTHOR
 
-Dan Urist, durist@world.std.com
+Dan Urist, durist@frii.com
 
 =head1 SEE ALSO
 

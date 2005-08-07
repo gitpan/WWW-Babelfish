@@ -1,19 +1,20 @@
-WWW::Babelfish, version .12
+WWW::Babelfish, version .13
 
 STATUS
 ======
-This is ALPHA software; use at your own risk. 
+This is BETA software; use at your own risk. 
 
 Comments, bug reports, patches etc. are appreciated.
 
 DESCRIPTION
 ===========
-This module is a simple perl front-end to the Babelfish translation
-server.  It's more fun than useful, but it might have a place in
-IRC/talk clients or perhaps a translating web proxy. It makes an
-attempt at breaking longer pieces of text up into chunks that
+This module is a simple perl front-end to the Babelfish or Google
+translation servers.  It's more fun than useful, but it might have a
+place in IRC/talk clients or perhaps a translating web proxy. It makes
+an attempt at breaking longer pieces of text up into chunks that
 Babelfish can handle and then reassembling them. This version also
 contains preliminary support for the Google translation engine.
+
 
 INSTALLATION
 ============
@@ -50,6 +51,8 @@ Brett T Warden <bwarden@wgz.com>	Patch for handling non-roman
 					translations.
 Martin K. Sluka <martin@sluka.de>	Patch to add languagepairs 
 					method.
+Eric R. Meyers <ermeyers@adelphia.net>	Patch to fix corruption of main 
+					package space.
 
 Many many thanks also to Wolfgang Schlueschen
 <wolfgang.schlueschen@philips.com> and Daniel van Balen
@@ -58,7 +61,7 @@ Babelfish URL and format.
 
 COPYRIGHT
 =========
-Copyright (c) 1999-2003 Daniel J. Urist. All rights reserved.  This
+Copyright (c) 1999-2005 Daniel J. Urist. All rights reserved.  This
 package is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 

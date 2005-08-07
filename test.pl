@@ -23,7 +23,11 @@ if ( -f "TTEST") {
   print "Your WWW proxy (hostname:port): [none] ";
   chomp($proxy = <stdin>);
 
-  $obj = $proxy ? new WWW::Babelfish('proxy' => $proxy) : new WWW::Babelfish;
+  print "Translate with Babelfish or Google?: [Babelfish] ";
+  chomp($service = <stdin>);
+  $service = "Babelfish" unless defined $service;
+
+  $obj = $proxy ? new WWW::Babelfish('proxy' => $proxy, 'service' => $service) : new WWW::Babelfish('service' => $service);
   die( "Babelfish server unavailable\n" ) unless defined($obj);
 
   print "Text to translate: ";

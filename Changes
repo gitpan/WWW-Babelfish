@@ -69,3 +69,9 @@ Revision history for Perl extension WWW::Babelfish.
 	this way it can be automatically installed via CPAN. All 
 	strings are now encoded/decoded utf8 using the Encode module; 
 	this means perl 5.8 is required.
+
+0.13	Sat Aug  6 20:59:23 MDT 2005
+	-Patch from Eric R. Meyers <ermeyers@adelphia.net> to fix
+	corruption of main package space. Fixed parsing of Babelfish's
+	language pairs. Fixed test.pl to ask for service (Babelfish or
+	Google).
