@@ -23,7 +23,11 @@ if ( -f "TTEST") {
   print "Your WWW proxy (hostname:port): [none] ";
   chomp($proxy = <stdin>);
 
-  print "Translate with Babelfish or Google?: [Babelfish] ";
+  print "Translate with " 
+    . join (", ", &WWW::Babelfish::services)
+      . "?: [Babelfish] ";
+
+#Babelfish or Google?: [Babelfish] ";
   chomp($service = <stdin>);
   $service = "Babelfish" unless defined $service;
 

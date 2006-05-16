@@ -75,3 +75,8 @@ Revision history for Perl extension WWW::Babelfish.
 	corruption of main package space. Fixed parsing of Babelfish's
 	language pairs. Fixed test.pl to ask for service (Babelfish or
 	Google).
+
+0.14	Mon May 15 21:58:45 MDT 2006
+	-Patch from Jan Willamowius <jan@willamowius.de> to add Yahoo
+	translation service. Also added new "services" method to
+	provide list of services and changed test.pl to use this.

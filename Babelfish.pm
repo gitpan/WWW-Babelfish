@@ -14,7 +14,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 # Preloaded methods go here.
 
@@ -24,10 +24,10 @@ use HTML::TokeParser;
 use IO::String;
 use Encode;
 
-my $MAXCHUNK = 1000; # Maximum number of characters 
-                     # Bablefish will translate at one time 
+my $MAXCHUNK = 1000;		# Maximum number of characters 
+				# Bablefish will translate at one time 
 
-my $MAXRETRIES = 5;  # Maximum number of retries for a chunk of text
+my $MAXRETRIES = 5;		# Maximum number of retries for a chunk of text
 $| = 1;
 
 my $Services = {
@@ -42,7 +42,7 @@ my $Services = {
 			      translaterequest => sub {
 				my($langpair, $text) = @_;
 				my $req = POST ( 'http://babelfish.altavista.com/babelfish/tr?il=en',
-						[ 'doit' => 'done', 'urltext' => encode("utf8",$text), 'lp' => $langpair, 'Submit' => 'Translate', 'enc' => 'utf8' ]);
+						 [ 'doit' => 'done', 'urltext' => encode("utf8",$text), 'lp' => $langpair, 'Submit' => 'Translate', 'enc' => 'utf8' ]);
 				return $req;
 			      },
 
@@ -61,7 +61,7 @@ my $Services = {
 			     },
 
 		Google =>    {
-			      agent => 'Mozilla/5.0',  # Google is finicky
+			      agent => 'Mozilla/5.0', # Google is finicky
 
 			      languagesrequest => sub {
 				my $req = new HTTP::Request(GET => 'http://www.google.com/language_tools?hl=en');
@@ -71,7 +71,7 @@ my $Services = {
 			      translaterequest => sub {
 				my($langpair, $text) = @_;
 				my $req = POST ( 'http://translate.google.com/translate_t',
-					     [ 'text' => encode("utf8",$text), 'langpair' => $langpair, hl => 'en', ie => "UTF8", oe => "UTF8",]);
+						 [ 'text' => encode("utf8",$text), 'langpair' => $langpair, hl => 'en', ie => "UTF8", oe => "UTF8",]);
 				return $req;
 			      },
 
@@ -80,78 +80,116 @@ my $Services = {
 				my $p = HTML::TokeParser->new(\$html);
 				my $tag;
 				while ($tag = $p->get_tag('textarea')) {
-				  if(@{$tag}[1]->{name} eq 'q'){
+				  if (@{$tag}[1]->{name} eq 'q') {
 				    $_ = $p->get_text;
 				    return decode("utf8",$_);
 				  }
 				}
 			      }
-			     }
+			     },
+
+		Yahoo => {
+			  agent => $0 . ":" . __PACKAGE__ . "/" . $VERSION,
+
+			  languagesrequest => sub {
+			    my $req = new HTTP::Request(GET => 'http://babelfish.yahoo.com/translate_txt');
+			    return $req;
+			  },
+
+			  translaterequest => sub {
+			    my($langpair, $text) = @_;
+			    my $req = POST ( 'http://babelfish.yahoo.com/translate_txt',
+					     [ 'ei' => 'UTF-8', 'doit' => 'done', 'tt' => 'urltext', 'trtext' => encode("utf8",$text), 'lp' => $langpair, 'btnTrTxt' => 'Translate', 'intl' => '1' ]);
+			    return $req;
+			  },
+
+			  # Extract the text from the html we get back from Yahoo
+			  extract_text => sub {
+			    my($html) = @_;
+			    my $p = HTML::TokeParser->new(\$html);
+			    my $tag;
+			    while ($tag = $p->get_tag('div')) {
+			      next if (@{$tag}[1]->{id} ne 'result');
+			      $_ = $p->get_text('/div');  
+			      return decode("utf8",$_);
+			    }
+			  }
+			 },
 				
 	       };
 
 
 sub new {
-    my ($this, @args) = @_;
-    my $class = ref($this) || $this;
-    my $self = {};
-    bless $self, $class;
-    return undef unless( $self->initialize(@args) );
-    return $self;
+  my ($this, @args) = @_;
+  my $class = ref($this) || $this;
+  my $self = {};
+  bless $self, $class;
+  return undef unless( $self->initialize(@args) );
+  return $self;
 }
 
 sub initialize {
-    my($self, %params) = @_;
+  my($self, %params) = @_;
 
-    $self->{service} = $params{service} || 'Babelfish';
-    die "No such service: " . $self->{service} unless defined $Services->{ $self->{service} };
+  $self->{service} = $params{service} || 'Babelfish';
+  die "No such service: " . $self->{service} unless defined $Services->{ $self->{service} };
 
-    # Caller can set user agent; we default to "script:WWW::Babelfish/0.01"
-    $self->{agent} = $params{agent} || $Services->{agent};
+  # Caller can set user agent; we default to "script:WWW::Babelfish/0.01"
+  $self->{agent} = $params{agent} || $Services->{agent};
 
-    $self->{proxy} = $params{proxy} if defined $params{proxy};
+  $self->{proxy} = $params{proxy} if defined $params{proxy};
 
-    # Get the page 
-    my $ua = new LWP::UserAgent;
-    $ua->proxy('http','http://' . $self->{proxy}) if defined $self->{proxy};
-    $ua->agent($self->{agent});
-    $self->{ua} = $ua;
+  # Get the page 
+  my $ua = new LWP::UserAgent;
+  $ua->proxy('http','http://' . $self->{proxy}) if defined $self->{proxy};
+  $ua->agent($self->{agent});
+  $self->{ua} = $ua;
 
-    my $req = &{ $Services->{ $self->{service} }->{languagesrequest} };
-    my $res = $ua->request($req);
-    unless($res->is_success){ 
-	warn(__PACKAGE__ . ":" . $res->status_line);
-	return 0;
+  my $req = &{ $Services->{ $self->{service} }->{languagesrequest} };
+  my $res = $ua->request($req);
+  unless($res->is_success){ 
+    warn(__PACKAGE__ . ":" . $res->status_line);
+    return 0;
+  }
+  my $page = $res->content;
+
+  # Extract the language names and the mapping of languages to options to
+  # be passed back, and store them on our object in "Langs" hash of hashes
+  # Incredibly, this works for both Babelfish and Google; it should really 
+  # be a method in $Services
+  my $p = HTML::TokeParser->new(\$page);
+  my $a2b;
+  if ( $p->get_tag("select") ) {
+    while ( $_ = $p->get_tag("option") ) {
+      $a2b = $p->get_trimmed_text;
+      next if $a2b =~ /Select from and to languages/; # This for babelfish
+      $a2b  =~ /(\S+)\sto\s(\S+)/ or next;
+      $self->{Langs}{$1}{$2} = $_->[1]{value};
+      $self->{Langs}{$2} ||= {};
     }
-    my $page = $res->content;
+  }
 
-    # Extract the language names and the mapping of languages to options to
-    # be passed back, and store them on our object in "Langs" hash of hashes
-    # Incredibly, this works for both Babelfish and Google; it should really 
-    # be a method in $Services
-    my $p = HTML::TokeParser->new(\$page);
-    my $a2b;
-    if( $p->get_tag("select") ){
-	while( $_ = $p->get_tag("option") ){
-	    $a2b = $p->get_trimmed_text;
-	    next if $a2b =~ /Select from and to languages/; # This for babelfish
-	    $a2b  =~ /(\S+)\sto\s(\S+)/ or next;
-	    $self->{Langs}{$1}{$2} = $_->[1]{value};
-            $self->{Langs}{$2} ||= {};
-	}
-    }
+  return 1;
+}
 
-    return 1;
+sub services {
+  my $self = shift;
+  if($self){
+    return keys %{$self->Services};
+  }
+  else{
+    return keys %{$Services};
+  }
 }
 
 sub languages {
-    my $self = shift;
-    return sort keys %{$self->{Langs}};
+  my $self = shift;
+  return sort keys %{$self->{Langs}};
 }
 
 sub languagepairs {
-    my $self = shift;
-    return $self->{Langs};
+  my $self = shift;
+  return $self->{Langs};
 }
 
 sub translate {
@@ -164,7 +202,7 @@ sub translate {
   $params{delimiter} = "\n\n" if ( ! defined( $params{delimiter} ) );
 
   undef $self->{error};
-  unless( exists($self->{Langs}->{$params{source}}) ){
+  unless ( exists($self->{Langs}->{$params{source}}) ) {
     $self->{error} = qq(Language "$params{source}" is not available);
     warn(__PACKAGE__ . ": " . $self->{error} . "\n");
     return undef;
@@ -175,9 +213,9 @@ sub translate {
   # pretty interesting if it did)
   return $params{text} if $params{source} eq $params{destination};
 
-  unless ( exists($self->{Langs}->{$params{source}}{$params{destination}}) ){
+  unless ( exists($self->{Langs}->{$params{source}}{$params{destination}}) ) {
     $self->{error} =
-          qq(Cannot translate from "$params{source}" to "$params{destination}");
+      qq(Cannot translate from "$params{source}" to "$params{destination}");
     warn(__PACKAGE__ . ": " . $self->{error} . "\n");
     return undef;
   }
@@ -185,16 +223,15 @@ sub translate {
   my $langopt = $self->{Langs}{$params{source}}{$params{destination}};
 
   my $th;			# "Text Handle"
-  if( ref $params{text} ){	# We've been passed a filehandle
+  if ( ref $params{text} ) {	# We've been passed a filehandle
     $th = $params{text};
-  }
-  else{				# We've been passed a string
+  } else {			# We've been passed a string
     $th = new IO::String($params{text});
   }
 
   my $Text = "";
   my $WANT_STRING_RETURNED = 0;
-  unless( defined $params{ofh} ){
+  unless ( defined $params{ofh} ) {
     $params{ofh} = new IO::String($Text);
     $WANT_STRING_RETURNED = 1;
   }
@@ -210,14 +247,14 @@ sub translate {
   my $res;			# LWP result
   my $text;			# translated chunk
   my $i;			# a counter
-  while($para = <$th>){
+  while ($para = <$th>) {
     $num_paras++;
     $transpara = "";
 
     # Extract any leading whitespace from the start of the paragraph
     # Babelfish will eat it anyway.
     if ($para =~ s/(^\s+)(\S)/$2/) {
-	$para_start_ws = $1 || "";
+      $para_start_ws = $1 || "";
     }
     $para =~ s/$params{delimiter}//; # Remove the para delimiter
 
@@ -227,20 +264,20 @@ sub translate {
       $ua = $self->{ua};
 
     RETRY:
-      for($i = 0; $i <= $MAXRETRIES; $i++){ 
+      for ($i = 0; $i <= $MAXRETRIES; $i++) { 
 	$res = $ua->request($req);
 
-	if( $res->is_success ){
+	if ( $res->is_success ) {
 
 	  #$text = $self->_extract_text($res->as_string); #REMOVE
 	  $text = &{ $Services->{ $self->{service} }->{extract_text} }($res->as_string);
 	  if ( ( ! defined( $text ) ) ||
                ( $text =~ /^\*\*time-out\*\*/ )
-             ) # in-band signalling; yuck
-          {
-            next RETRY;
+             )			# in-band signalling; yuck
+	    {
+	      next RETRY;
 
-          } ## end if
+	    }			## end if
 
 	  $text =~ s/\n$//;	# Babelfish likes to append newlines
 	  $transpara .= $text;
@@ -255,10 +292,9 @@ sub translate {
     print { $params{ofh} } $para_start_ws . $transpara;
   }
 
-  if( $WANT_STRING_RETURNED ){
+  if ( $WANT_STRING_RETURNED ) {
     return $Text;
-  }
-  else{
+  } else {
     return 1;
   }
 }
@@ -272,65 +308,65 @@ sub error {
 # an array of pieces of the text chopped up in a 
 # logical way and less than or equal to the chunk size
 sub _chunk_text {
-    my($self, $max, $text) = @_;
+  my($self, $max, $text) = @_;
 
-    my @result;
+  my @result;
 
-    # The trivial case
-    return($text) if length($text) <= $max; 
+  # The trivial case
+  return($text) if length($text) <= $max; 
 
-    # Hmmm. There are a couple of ways we could do this. 
-    # I'm guessing that Babelfish doesn't look at any structure larger than 
-    # a sentence; in fact I'm often tempted to guess that it doesn't look
-    # at anything larger than a word, but we'll give it the benefit of the doubt.
-    #
+  # Hmmm. There are a couple of ways we could do this. 
+  # I'm guessing that Babelfish doesn't look at any structure larger than 
+  # a sentence; in fact I'm often tempted to guess that it doesn't look
+  # at anything larger than a word, but we'll give it the benefit of the doubt.
+  #
 
-    # FIXME there are no built-in regexps for matching sentence
-    # breaks; I'm not sure if terminal punctuation will work for all
-    # languages...
+  # FIXME there are no built-in regexps for matching sentence
+  # breaks; I'm not sure if terminal punctuation will work for all
+  # languages...
 
-    my $total = length($text);
-    my $offset = 0;
-    my $lastoffset = 0;
-    my $test;
-    my $chunk;
+  my $total = length($text);
+  my $offset = 0;
+  my $lastoffset = 0;
+  my $test;
+  my $chunk;
 
-    while( ($total - $lastoffset) > $max) {
-	$test = $lastoffset + $max;
+  while ( ($total - $lastoffset) > $max) {
+    $test = $lastoffset + $max;
 	
-	# Split by terminal punctuation...
-	@_ = sort {$b <=> $a} ( rindex($text, '.', $test), 
-				rindex($text, '!', $test),      
-				rindex($text, '?', $test),      
-				);
-	$offset = shift(@_) + 1;
+    # Split by terminal punctuation...
+    @_ = sort {$b <=> $a} ( rindex($text, '.', $test), 
+			    rindex($text, '!', $test),      
+			    rindex($text, '?', $test),      
+			  );
+    $offset = shift(@_) + 1;
 
-	# or by clause...
-	if( $offset == -1 or $offset <= $lastoffset   ){
-	    @_ = sort {$b <=> $a} ( rindex($text, ',', $test), 
-				    rindex($text, ';', $test),      
-				    rindex($text, ':', $test),      
-				    ); 
-	    $offset = shift(@_) + 1;
+    # or by clause...
+    if ( $offset == -1 or $offset <= $lastoffset   ) {
+      @_ = sort {$b <=> $a} ( rindex($text, ',', $test), 
+			      rindex($text, ';', $test),      
+			      rindex($text, ':', $test),      
+			    ); 
+      $offset = shift(@_) + 1;
 
 
-	    # or by word
-	    if( $offset == -1 or $offset <= $lastoffset){
-		$offset = rindex($text, " ", $test);
-	    }
+      # or by word
+      if ( $offset == -1 or $offset <= $lastoffset) {
+	$offset = rindex($text, " ", $test);
+      }
 
-	    # or give up
-	    return undef if $offset == -1;
-	}
-	
-	$chunk = substr($text, $lastoffset, $offset - $lastoffset);
-
-	push( @result, $chunk);
-	$lastoffset = $offset;
+      # or give up
+      return undef if $offset == -1;
     }
+	
+    $chunk = substr($text, $lastoffset, $offset - $lastoffset);
 
-    push( @result, substr($text, $lastoffset) );
-    return @result;
+    push( @result, $chunk);
+    $lastoffset = $offset;
+  }
+
+  push( @result, substr($text, $lastoffset) );
+  return @result;
 }
 
 # This code is now obsoleted by the new result page format, but I'm
@@ -398,9 +434,13 @@ Creates a new WWW::Babelfish object.
 
 Parameters:
 
- service:        Babelfish or Google; default is Babelfish
+ service:        Babelfish, Google or Yahoo; default is Babelfish
  agent:          user agent string
  proxy:          proxy in the form of host:port
+
+=item services
+
+Returns a plain array of the services available (currently Babelfish, Google or Yahoo).
 
 =item languages
 
