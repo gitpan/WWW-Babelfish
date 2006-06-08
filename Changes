@@ -80,3 +80,8 @@ Revision history for Perl extension WWW::Babelfish.
 	-Patch from Jan Willamowius <jan@willamowius.de> to add Yahoo
 	translation service. Also added new "services" method to
 	provide list of services and changed test.pl to use this.
+
+0.15	Wed Jun  7 22:21:28 MDT 2006
+	-A couple of patches from <FANY@cpan.org> for the Babelfish engine,
+	to fix umlauts and to work around an inconsistency in the way 
+	Babelfish returns the translation for some texts.

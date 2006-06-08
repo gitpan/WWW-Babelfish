@@ -14,7 +14,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 # Preloaded methods go here.
 
@@ -27,7 +27,7 @@ use Encode;
 my $MAXCHUNK = 1000;		# Maximum number of characters 
 				# Bablefish will translate at one time 
 
-my $MAXRETRIES = 5;		# Maximum number of retries for a chunk of text
+my $MAXRETRIES = 50;		# Maximum number of retries for a chunk of text
 $| = 1;
 
 my $Services = {
@@ -42,21 +42,38 @@ my $Services = {
 			      translaterequest => sub {
 				my($langpair, $text) = @_;
 				my $req = POST ( 'http://babelfish.altavista.com/babelfish/tr?il=en',
-						 [ 'doit' => 'done', 'urltext' => encode("utf8",$text), 'lp' => $langpair, 'Submit' => 'Translate', 'enc' => 'utf8' ]);
+						 [ 'doit' => 'done', 'urltext' => encode("utf8",$text), 'lp' => $langpair, 'Submit' => 'Translate', 'enc' => 'utf8' ], qw(Accept-Charset utf-8) );
 				return $req;
 			      },
 
 			      # Extract the text from the html we get back from babelfish and return
 			      # it (keying on the fact that it's the first thing after a <br> tag,
 			      # possibly removing a textarea tag after it).
+
+# 			      extract_text => sub {
+# 				my($html) = @_;
+# 				my $p = HTML::TokeParser->new(\$html);
+# 				my $tag;
+# 				while ($tag = $p->get_tag('input')) {
+# 				  $_ = @{$tag}[1]->{value} if @{$tag}[1]->{name} eq 'q';
+# 				  return decode("utf8",$_);
+# 				}
+
 			      extract_text => sub {
 				my($html) = @_;
 				my $p = HTML::TokeParser->new(\$html);
-				my $tag;
-				while ($tag = $p->get_tag('input')) {
-				  $_ = @{$tag}[1]->{value} if @{$tag}[1]->{name} eq 'q';
-				  return decode("utf8",$_);
+				while ( my $_tag = $p->get_tag('div') ) {
+				  my($tag,$attr,$attrseq) = @$_tag;
+				  next unless @$attrseq == 1
+				    && $attrseq->[-1] eq 'style'
+				      && $attr->{style} eq 'padding:10px;';
+				  my($token) = $p->get_token or return;
+				  my ( $type, $text, $is_data ) = @$token;
+				  next if $type ne 'T';
+				  return decode( utf8 => $text );
 				}
+
+
 			      }
 			     },
 
