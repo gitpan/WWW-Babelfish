@@ -85,3 +85,7 @@ Revision history for Perl extension WWW::Babelfish.
 	-A couple of patches from <FANY@cpan.org> for the Babelfish engine,
 	to fix umlauts and to work around an inconsistency in the way 
 	Babelfish returns the translation for some texts.
+
+0.16	Fri Dec 15 20:50:38 MST 2006
+	-Patch from Djihed Afifi <djihed@gmail.com> for a change in
+	the Google results page format

@@ -14,7 +14,7 @@ require AutoLoader;
 # Do not simply export all your public functions/methods/constants.
 @EXPORT = qw();
 
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 # Preloaded methods go here.
 
@@ -96,8 +96,8 @@ my $Services = {
 				my($html) = @_;
 				my $p = HTML::TokeParser->new(\$html);
 				my $tag;
-				while ($tag = $p->get_tag('textarea')) {
-				  if (@{$tag}[1]->{name} eq 'q') {
+				while ($tag = $p->get_tag('div')) {
+				  if (@{$tag}[1]->{id} eq 'result_box') {
 				    $_ = $p->get_text;
 				    return decode("utf8",$_);
 				  }

@@ -1,4 +1,4 @@
-WWW::Babelfish, version .15
+WWW::Babelfish, version .16
 
 STATUS
 ======
@@ -55,6 +55,7 @@ Eric R. Meyers <ermeyers@adelphia.net>	Patch to fix corruption of main
 Jan Willamowius <jan@willamowius.de>	Patch to add Yahoo translation 
 					service.
 <FANY@cpan.org>				Patch for some Babelfish glitches.
+Djihed Afifi <djihed@gmail.com>		Patch for Google format change.
 
 Many many thanks also to Wolfgang Schlueschen
 <wolfgang.schlueschen@philips.com> and Daniel van Balen
